@@ -23,17 +23,22 @@ const client = new MongoClient(uri, {
 async function run() {
     try {
         await client.connect();
+        const courseCollectin = client.db('courseDB').collection('course')
+
+        // Get Course
+        app.get('/courses', async(req, res) => {
+            const cursor = courseCollectin.find()
+            const result = await cursor.toArray()
+            res.send(result)
+
+        })
 
         // Add course
         app.post('/add-course', async(req, res) => {
-            const course = req.body
-            res.send(course)
+            const newCourse = req.body
+            const result = await courseCollectin.insertOne(newCourse)
 
-            const courseCollectin = client.db('courseDB').collection('course')
-
-            const result = await courseCollectin.insertOne(course)
-
-            console.log('inserted', result)
+            console.log('inserted', newCourse)
             res.send(result)
         })
 
