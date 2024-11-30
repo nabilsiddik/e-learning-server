@@ -1,7 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 require('dotenv').config()
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const app = express()
 const port = process.env.PORT || 5000
 
@@ -23,25 +23,66 @@ const client = new MongoClient(uri, {
 async function run() {
     try {
         await client.connect();
-        const courseCollectin = client.db('courseDB').collection('course')
+        const courseCollection = client.db('courseDB').collection('course')
 
-        // Get Course
+        // Get Courses
         app.get('/courses', async(req, res) => {
-            const cursor = courseCollectin.find()
+            const cursor = courseCollection.find()
             const result = await cursor.toArray()
             res.send(result)
 
         })
 
+        // Get course of a specific id
+        app.get('/courses/:id', async(req, res) => {
+            const id = req.params.id
+            const query = {_id: new ObjectId(id)}
+            const result = await courseCollection.findOne(query)
+
+            res.send(result)
+        })
+
+
         // Add course
         app.post('/add-course', async(req, res) => {
             const newCourse = req.body
-            const result = await courseCollectin.insertOne(newCourse)
+            const result = await courseCollection.insertOne(newCourse)
 
             console.log('inserted', newCourse)
             res.send(result)
         })
 
+
+        // Delete course 
+        app.delete('/courses/:id', async(req, res)=> {
+            const id = req.params.id
+            const query = {_id: new ObjectId(id)}
+            const result = await courseCollection.deleteOne(query)
+
+            res.send(result)
+        })
+
+
+        // Updated course 
+        app.put('/courses/:id', async(req, res) => {
+            const id = req.params.id
+            const filter = {_id: new ObjectId(id)}
+            const options = {upsert: true}
+            const updatedCourse = req.body
+            const course = {
+                $set: {
+                    title: updatedCourse.title,
+                    thumbnailUrl: updatedCourse.thumbnailUrl,
+                    description: updatedCourse.description,
+                    regularPrice: updatedCourse.regularPrice,
+                    discountedPrice: updatedCourse.discountedPrice,
+                    isOnCart: updatedCourse.isOnCart
+                }
+            }
+
+            const result = await courseCollection.updateOne(filter, course, options)
+            res.send(result)
+        })
 
         
 
