@@ -24,9 +24,11 @@ async function run() {
     try {
         await client.connect();
         const courseCollection = client.db('courseDB').collection('course')
+        const usersCollection = client.db('courseDB').collection('users')
 
+        // Course Related apis
         // Get Courses
-        app.get('/courses', async(req, res) => {
+        app.get('/courses', async (req, res) => {
             const cursor = courseCollection.find()
             const result = await cursor.toArray()
             res.send(result)
@@ -34,9 +36,9 @@ async function run() {
         })
 
         // Get course of a specific id
-        app.get('/courses/:id', async(req, res) => {
+        app.get('/courses/:id', async (req, res) => {
             const id = req.params.id
-            const query = {_id: new ObjectId(id)}
+            const query = { _id: new ObjectId(id) }
             const result = await courseCollection.findOne(query)
 
             res.send(result)
@@ -44,7 +46,7 @@ async function run() {
 
 
         // Add course
-        app.post('/add-course', async(req, res) => {
+        app.post('/add-course', async (req, res) => {
             const newCourse = req.body
             const result = await courseCollection.insertOne(newCourse)
 
@@ -54,9 +56,9 @@ async function run() {
 
 
         // Delete course 
-        app.delete('/courses/:id', async(req, res)=> {
+        app.delete('/courses/:id', async (req, res) => {
             const id = req.params.id
-            const query = {_id: new ObjectId(id)}
+            const query = { _id: new ObjectId(id) }
             const result = await courseCollection.deleteOne(query)
 
             res.send(result)
@@ -64,10 +66,10 @@ async function run() {
 
 
         // Updated course 
-        app.put('/courses/:id', async(req, res) => {
+        app.put('/courses/:id', async (req, res) => {
             const id = req.params.id
-            const filter = {_id: new ObjectId(id)}
-            const options = {upsert: true}
+            const filter = { _id: new ObjectId(id) }
+            const options = { upsert: true }
             const updatedCourse = req.body
             const course = {
                 $set: {
@@ -84,7 +86,24 @@ async function run() {
             res.send(result)
         })
 
+
         
+        // Users related apis
+        // Get users
+        app.get('/users', async (req, res) => {
+            const cursor = usersCollection.find()
+            const result = await cursor.toArray()
+            res.send(result)
+        })
+
+        // Create users
+        app.post('/users', async (req, res) => {
+            const user = req.body
+            const result = await usersCollection.insertOne(user)
+            console.log(user)
+            res.send(result)
+        })
+
 
 
         await client.db("admin").command({ ping: 1 });
