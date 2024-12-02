@@ -86,6 +86,22 @@ async function run() {
             res.send(result)
         })
 
+        // Update isOnCart
+        app.patch('/courses/:id', async(req, res) => {
+            const id = req.params.id
+            const filter = {_id: new ObjectId(id)}
+            const updatedDoc = {
+                $set: {
+                    isOnCart: req.body.isOnCart
+                }
+            }
+
+            const result = await courseCollection.updateOne(filter, updatedDoc)
+            res.send(result)
+
+            console.log(req.body)
+        })
+
 
         
         // Users related apis
@@ -101,6 +117,20 @@ async function run() {
             const user = req.body
             const result = await usersCollection.insertOne(user)
             console.log(user)
+            res.send(result)
+        })
+
+
+        app.patch('/users', async(req, res) => {
+            const email = req.body.email
+            const filter = {email}
+            const updatedDoc = {
+                $set: {
+                    lastSignInTime: req.body?.lastSignInTime
+                }
+            }
+
+            const result = await usersCollection.updateOne(filter, updatedDoc)
             res.send(result)
         })
 
