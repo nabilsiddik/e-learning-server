@@ -25,6 +25,7 @@ async function run() {
         await client.connect();
         const courseCollection = client.db('courseDB').collection('course')
         const usersCollection = client.db('courseDB').collection('users')
+        const ordersCollection = client.db('courseDB').collection('orders')
 
         // Course Related apis
         // Get Courses
@@ -131,6 +132,25 @@ async function run() {
             }
 
             const result = await usersCollection.updateOne(filter, updatedDoc)
+            res.send(result)
+        })
+
+
+
+
+        // Orders related API
+
+        // Get order
+        app.get('/orders', async(req, res) => {
+            const cursor = ordersCollection.find()
+            const result = await cursor.toArray()
+            res.send(result)
+        })
+
+        // Post order
+        app.post('/orders', async(req, res) => {
+            const order = req.body
+            const result = await ordersCollection.insertOne(order)
             res.send(result)
         })
 
