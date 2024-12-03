@@ -46,6 +46,16 @@ async function run() {
         })
 
 
+        // Get courses of a specific email
+        app.get('/user-courses/:email', async (req, res) => {
+            const email = req.params.email
+            const query = { email }
+            const result = await ordersCollection.find(query).toArray()
+
+            res.send(result)
+        })
+
+
         // Add course
         app.post('/add-course', async (req, res) => {
             const newCourse = req.body
